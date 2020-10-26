@@ -2,7 +2,7 @@ import alpaca_trade_api as tradeapi
 import config
 import sqlite3
 
-connection = sqlite3.connect('/Users/marco/Documents/Documents/Projects/automated-stock-trading-system/app.db')
+connection = sqlite3.connect(config.db_file)
 connection.row_factory = sqlite3.Row
 cursor = connection.cursor()
 
@@ -13,7 +13,7 @@ cursor.execute("""
 rows = cursor.fetchall()
 symbols = [row['symbol'] for row in rows]
 
-api = tradeapi.REST(config.api_key, config.api_secret, base_url='https://paper-api.alpaca.markets')
+api = tradeapi.REST(config.api_key, config.api_secret, base_url=config.api_url)
 assets = api.list_assets()
 
 for asset in assets:
