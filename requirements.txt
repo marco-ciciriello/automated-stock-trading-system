@@ -1,2 +1,5 @@
 alpaca-trade-api==0.51.0
+fastapi==0.61.1
+jinja2==2.11.2
+uvicorn==0.12.2
 yfinance==0.1.55
