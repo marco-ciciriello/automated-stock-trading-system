@@ -104,7 +104,7 @@ def apply_strategy(strategy_id: int = Form(...), stock_id: int = Form(...)):
     return RedirectResponse(url=f'/strategy/{strategy_id}', status_code=303)
 
 
-@app.get('strategy/{strategy_id}')
+@app.get('/strategy/{strategy_id}')
 def strategy(request: Request, strategy_id):
     connection = sqlite3.connect(config.DB_FILE)
     connection.row_factory = sqlite3.Row
