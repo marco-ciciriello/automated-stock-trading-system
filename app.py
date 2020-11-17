@@ -17,28 +17,10 @@ def index(request: Request):
     connection.row_factory = sqlite3.Row
     cursor = connection.cursor()
 
-    if stock_filter == 'new_intraday_highs':
+    if stock_filter == 'new_closing_highs':
         cursor.execute("""
             SELECT * FROM (
                 SELECT symbol, name, stock_id, max(close), date
-                FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
-                GROUP BY stock_id
-                ORDER BY symbol
-            ) WHERE date = ?
-        """, (date.today().isoformat(),))
-    elif stock_filter == 'new_closing_highs':
-        cursor.execute("""
-            SELECT * FROM (
-                SELECT symbol, name, stock_id, max(close), date
-                FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
-                GROUP BY stock_id
-                ORDER BY symbol
-            ) WHERE date = ?
-        """, (date.today().isoformat(),))
-    elif stock_filter == 'new_intraday_lows':
-        cursor.execute("""
-            SELECT * FROM (
-                SELECT symbol, name, stock_id, min(close), date
                 FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
                 GROUP BY stock_id
                 ORDER BY symbol
@@ -59,7 +41,7 @@ def index(request: Request):
         """)
 
     rows = cursor.fetchall()
-
+    
     return templates.TemplateResponse('index.html', {'request': request, 'stocks': rows})
 
 

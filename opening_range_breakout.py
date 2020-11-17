@@ -26,13 +26,13 @@ cursor.execute("""
 
 stocks = cursor.fetchall()
 symbols = [stock['symbol'] for stock in stocks]
-
-api = tradeapi.REST(config.API_KEY, config.API_SECRET, base_url=config.API_URL)
-orders = api.list_orders()
-existing_order_symbols = [order.symbol for order in orders]
 current_date = date.today().isoformat()
 start_minute_bar = f'{current_date} 09:30:00-04:00'
 end_minute_bar = f'{current_date} 09:45:00-04:00'
+
+api = tradeapi.REST(config.API_KEY, config.API_SECRET, base_url=config.API_URL)
+orders = api.list_orders(status='all', limit=500, after=f'{current_date}T13:30:00Z')
+existing_order_symbols = [order.symbol for order in orders]
 
 for symbol in symbols:
     minute_bars = api.polygon.historic_agg_v2(symbol, 1, 'minute', _from=current_date, to=current_date).df
