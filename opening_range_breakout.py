@@ -1,5 +1,4 @@
-# Accessing the polygon.io data will only work for those with an Alpaca live
-# trading account.
+# Accessing the polygon.io data will only work for those with an Alpaca live trading account.
 
 import alpaca_trade_api as tradeapi
 import config
@@ -74,6 +73,7 @@ for symbol in symbols:
         else:
             print(f'An order for {symbol} already exists, skipping...')
 
+# Send trade notification email
 with smtplib.SMTP_SSL(config.EMAIL_HOST, config.EMAIL_PORT, context=context) as server:
     email_message = f'Subject: Trade notifications for {current_date}\n\n'
     email_message += '\n\n'.join(messages)

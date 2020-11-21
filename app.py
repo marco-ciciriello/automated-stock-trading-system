@@ -9,6 +9,8 @@ from fastapi.templating import Jinja2Templates
 app = FastAPI()
 templates = Jinja2Templates(directory='templates')
 
+current_date = date.today().isoformat()
+
 
 @app.get('/')
 def index(request: Request):
@@ -25,7 +27,7 @@ def index(request: Request):
                 GROUP BY stock_id
                 ORDER BY symbol
             ) WHERE date = ?
-        """, (date.today().isoformat(),))
+        """, (current_date,))
     elif stock_filter == 'new_closing_lows':
         cursor.execute("""
             SELECT * FROM (
@@ -34,15 +36,26 @@ def index(request: Request):
                 GROUP BY stock_id
                 ORDER BY symbol
             ) WHERE date = ?
-        """, (date.today().isoformat(),))
+        """, (current_date,))
     else:
         cursor.execute("""
             SELECT id, symbol, name FROM stock ORDER BY symbol
         """)
 
     rows = cursor.fetchall()
-    
-    return templates.TemplateResponse('index.html', {'request': request, 'stocks': rows})
+
+    cursor.execute("""
+        SELECT symbol, rsi_14, sma_20, sma_50, close
+        FROM stock JOIN stock_price ON stock_price.stock_id = stock.id
+        WHERE date = ?
+        """, (current_date,))
+
+    indicator_rows = cursor.fetchall()
+    indicator_values = {}
+    for row in indicator_rows:
+        indicator_values[row['symbol']] = row
+
+    return templates.TemplateResponse('index.html', {'request': request, 'stocks': rows, 'indicator_values': indicator_values})
 
 
 @app.get('/stock/{symbol}')
