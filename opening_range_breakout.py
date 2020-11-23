@@ -16,15 +16,16 @@ connection.row_factory = sqlite3.Row
 cursor = connection.cursor()
 
 cursor.execute("""
-    SELECT id FROM strategy WHERE name = 'opening_range_breakout'
+    SELECT id
+    FROM strategy
+    WHERE name = 'opening_range_breakout'
 """)
 
 strategy_id = cursor.fetchone()['id']
 
 cursor.execute("""
     SELECT symbol, name
-    FROM stock
-    JOIN stock_strategy ON stock_strategy.stock_id = stock_id
+    FROM stock JOIN stock_strategy ON stock_strategy.stock_id = stock_id
     WHERE stock_strategy.strategy_id = ?
 """, (strategy_id,))
 
@@ -54,7 +55,7 @@ for symbol in symbols:
     if not after_opening_range_breakout.empty:
         if not symbol in existing_order_symbols:
             limit_price = after_opening_range_breakout.iloc[0]['close']
-            messages.append(f'Placing order for {symbol} at {limit_price}, closed_above {opening_range_high}\n\n{after_opening_range_breakout.iloc[0]}\n\n)
+            messages.append(f'Placing order for {symbol} at {limit_price}, closed_above {opening_range_high}\n\n{after_opening_range_breakout.iloc[0]}\n\n')
             api.submit_order(
                 symbol=symbol,
                 side='buy',
@@ -73,7 +74,6 @@ for symbol in symbols:
         else:
             print(f'An order for {symbol} already exists, skipping...')
 
-# Send trade notification email
 with smtplib.SMTP_SSL(config.EMAIL_HOST, config.EMAIL_PORT, context=context) as server:
     email_message = f'Subject: Trade notifications for {current_date}\n\n'
     email_message += '\n\n'.join(messages)

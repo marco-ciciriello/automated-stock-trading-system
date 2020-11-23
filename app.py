@@ -30,16 +30,20 @@ def index(request: Request):
         """, (current_date,))
     elif stock_filter == 'new_closing_lows':
         cursor.execute("""
-            SELECT * FROM (
+            SELECT *
+            FROM (
                 SELECT symbol, name, stock_id, min(close), date
                 FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
                 GROUP BY stock_id
                 ORDER BY symbol
-            ) WHERE date = ?
+            ) 
+            WHERE date = ?
         """, (current_date,))
     else:
         cursor.execute("""
-            SELECT id, symbol, name FROM stock ORDER BY symbol
+            SELECT id, symbol, name
+            FROM stock
+            ORDER BY symbol
         """)
 
     rows = cursor.fetchall()
@@ -48,7 +52,7 @@ def index(request: Request):
         SELECT symbol, rsi_14, sma_20, sma_50, close
         FROM stock JOIN stock_price ON stock_price.stock_id = stock.id
         WHERE date = ?
-        """, (current_date,))
+    """, (current_date,))
 
     indicator_rows = cursor.fetchall()
     indicator_values = {}
@@ -65,19 +69,24 @@ def stock_info(request: Request, symbol):
     cursor = connection.cursor()
 
     cursor.execute("""
-        SELECT * FROM strategy
+        SELECT *
+        FROM strategy
     """)
 
     strategies = cursor.fetchall()
 
     cursor.execute("""
-        SELECT id, symbol, name FROM stock WHERE symbol = ?
+        SELECT id, symbol, name
+        FROM stock
+        WHERE symbol = ?
     """, (symbol,))
 
     row = cursor.fetchone()
 
     cursor.execute("""
-        SELECT * FROM stock_price WHERE stock_id = ?
+        SELECT *
+        FROM stock_price
+        WHERE stock_id = ?
     """, (row['id'],))
 
     candles = cursor.fetchall()
@@ -91,7 +100,8 @@ def apply_strategy(strategy_id: int = Form(...), stock_id: int = Form(...)):
     cursor = connection.cursor()
 
     cursor.execute("""
-        INSERT INTO stock_strategy (stock_id, strategy_id) VALUES (?, ?)
+        INSERT INTO stock_strategy (stock_id, strategy_id)
+        VALUES (?, ?)
     """, (stock_id, strategy_id))
 
     connection.commit()

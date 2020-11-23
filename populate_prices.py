@@ -11,12 +11,14 @@ connection.row_factory = sqlite3.Row
 cursor = connection.cursor()
 
 cursor.execute("""
-    SELECT id, symbol, name FROM stock
+    SELECT id, symbol, name
+    FROM stock
 """)
 
 rows = cursor.fetchall()
 symbols = []
 stock_dict = {}
+current_date = date.today().isoformat()
 
 for row in rows:
     symbol = row['symbol']
@@ -35,8 +37,7 @@ for i in range(0, len(symbols), batch_size):
         for bar in barsets[symbol]:
             stock_id = stock_dict[symbol]
 
-            # Calculate technical indicators
-            if len(recent_closes) >= 50 and date.today().isoformat() == bar.t.date().isoformat():
+            if len(recent_closes) >= 50 and current_date == bar.t.date().isoformat():
                 sma_20 = ti.sma(np.array(recent_closes), period=20)[-1]
                 sma_50 = ti.sma(np.array(recent_closes), period=50)[-1]
                 rsi_14 = ti.rsi(np.array(recent_closes), period=14)[-1]
