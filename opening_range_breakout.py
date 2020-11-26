@@ -6,7 +6,8 @@ import smtplib
 import sqlite3
 import ssl
 
-from datetime import date
+from datetime import date, datetime
+from timezone import is_dst
 
 # Create secure SSL context
 context = ssl.create_default_context()
@@ -32,12 +33,16 @@ cursor.execute("""
 stocks = cursor.fetchall()
 symbols = [stock['symbol'] for stock in stocks]
 current_date = date.today().isoformat()
-start_minute_bar = f'{current_date} 09:30:00'
-end_minute_bar = f'{current_date} 09:45:00'
+if is_dst():
+    start_minute_bar = f'{current_date} 09:30:00-01:00'
+    end_minute_bar = f'{current_date} 09:45:00-01:00'
+else:
+    start_minute_bar = f'{current_date} 09:30:00'
+    end_minute_bar = f'{current_date} 09:45:00'
 
 api = tradeapi.REST(config.API_KEY, config.API_SECRET, base_url=config.API_URL)
-orders = api.list_orders()
-existing_order_symbols = [order.symbol for order in orders]
+orders = api.list_orders(status='all', after=current_date)
+existing_order_symbols = [order.symbol for order in orders if order.status != 'canceled']
 messages = []
 
 for symbol in symbols:
@@ -55,22 +60,27 @@ for symbol in symbols:
     if not after_opening_range_breakout.empty:
         if not symbol in existing_order_symbols:
             limit_price = after_opening_range_breakout.iloc[0]['close']
-            messages.append(f'Placing order for {symbol} at {limit_price}, closed_above {opening_range_high}\n\n{after_opening_range_breakout.iloc[0]}\n\n')
-            api.submit_order(
-                symbol=symbol,
-                side='buy',
-                type='limit',
-                qty='100',
-                time_in_force='day',
-                order_class='bracket',
-                limit_price=limit_price,
-                take_profit=dict(
-                    limit_price=limit_price + opening_range,
-                ),
-                stop_loss=dict(
-                    stop_price=limit_price - opening_range,
+            message = f'Selling short {symbol} at {limit_price}, closed above {opening_range_high}\n\n{after_opening_range_breakout.iloc[0]}\n\n'
+            messages.append(message)
+            print(message)
+            try:
+                api.submit_order(
+                    symbol=symbol,
+                    side='buy',
+                    type='limit',
+                    qty='100',
+                    time_in_force='day',
+                    order_class='bracket',
+                    limit_price=limit_price,
+                    take_profit=dict(
+                        limit_price=limit_price + opening_range,
+                    ),
+                    stop_loss=dict(
+                        stop_price=limit_price - opening_range,
+                    )
                 )
-            )
+            except Exception as e:
+                print(f'Could not submit order: {e}')
         else:
             print(f'An order for {symbol} already exists, skipping...')
 
