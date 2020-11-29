@@ -43,6 +43,84 @@ def index(request: Request):
                 FROM stock_price
             )
         """)
+    elif stock_filter == 'rsi_overbought':
+        cursor.execute("""
+            SELECT symbol, name, stock_id, date
+            FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
+            WHERE (
+                rsi_14 > 70
+                AND date = (
+                    SELECT max(date)
+                    FROM stock_price
+                )
+            )
+            ORDER BY symbol
+        """)
+    elif stock_filter == 'rsi_oversold':
+        cursor.execute("""
+            SELECT symbol, name, stock_id, date
+            FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
+            WHERE (
+                rsi_14 < 30 
+                AND date = (
+                    SELECT max(date)
+                    FROM stock_price
+                )
+            )
+            ORDER BY symbol
+        """)
+    elif stock_filter == 'above_sma_20':
+        cursor.execute("""
+            SELECT symbol, name, stock_id, date
+            FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
+            WHERE (
+                close > sma_20
+                AND date = (
+                    SELECT max(date)
+                    FROM stock_price
+                )
+            )
+            ORDER BY symbol
+        """)
+    elif stock_filter == 'below_sma_20':
+        cursor.execute("""
+            SELECT symbol, name, stock_id, date
+            FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
+            WHERE (
+                close < sma_20
+                AND date = (
+                    SELECT max(date)
+                    FROM stock_price
+                )
+            )
+            ORDER BY symbol
+        """)
+    elif stock_filter == 'above_sma_50':
+        cursor.execute("""
+            SELECT symbol, name, stock_id, date
+            FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
+            WHERE (
+                close > sma_50
+                AND date = (
+                    SELECT max(date)
+                    FROM stock_price
+                )
+            )
+            ORDER BY symbol
+        """)
+    elif stock_filter == 'below_sma_50':
+        cursor.execute("""
+            SELECT symbol, name, stock_id, date
+            FROM stock_price JOIN stock ON stock.id = stock_price.stock_id
+            WHERE (
+                close < sma_50
+                AND date = (
+                    SELECT max(date)
+                    FROM stock_price
+                )
+            )
+            ORDER BY symbol
+        """)
     else:
         cursor.execute("""
             SELECT id, symbol, name
