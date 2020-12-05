@@ -1,3 +1,4 @@
+import alpaca_trade_api as tradeapi
 import config
 import sqlite3
 
@@ -217,3 +218,26 @@ def strategy(request: Request, strategy_id):
     stocks = cursor.fetchall()
 
     return templates.TemplateResponse('strategy.html', {'request': request, 'stocks': stocks, 'strategy': strategy})
+
+
+@app.get('/strategies')
+def strategies(request: Request):
+    connection = sqlite3.connect(config.DB_FILE)
+    connection.row_factory = sqlite3.Row
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT *
+        FROM strategy
+    """)
+
+    strategies = cursor.fetchall()
+
+    return templates.TemplateResponse('strategies.html', {'request': request, 'strategies': strategies})
+
+
+@app.get('/orders')
+def orders(request: Request):
+    api = tradeapi.REST(config.API_KEY, config.API_SECRET, base_url=config.API_URL)
+    orders = api.list_orders(status='all')
+    return templates.TemplateResponse('orders.html', {'request': request, 'orders': orders})
