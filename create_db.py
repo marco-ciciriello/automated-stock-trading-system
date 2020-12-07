@@ -47,7 +47,7 @@ cursor.execute("""
     )
 """)
 
-strategies = ['opening_range_breakout', 'opening_range_breakdown']
+strategies = ['opening_range_breakout', 'opening_range_breakdown', 'bollinger_bands']
 
 for strategy in strategies:
     cursor.execute("""

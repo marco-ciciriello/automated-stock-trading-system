@@ -58,7 +58,7 @@ for symbol in symbols:
     after_opening_range_breakdown = after_opening_range_bars[after_opening_range_bars['close'] < opening_range_low]
 
     if not after_opening_range_breakdown.empty:
-        if not symbol in existing_order_symbols:
+        if symbol not in existing_order_symbols:
             limit_price = after_opening_range_breakdown.iloc[0]['close']
             message = f'Selling short {symbol} at {limit_price}, closed below {opening_range_low}\n\n{after_opening_range_breakdown.iloc[0]}\n\n'
             messages.append(message)
