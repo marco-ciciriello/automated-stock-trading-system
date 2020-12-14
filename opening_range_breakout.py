@@ -7,6 +7,7 @@ import sqlite3
 import ssl
 
 from datetime import date, datetime
+from helpers import calculate_stock_quantity
 from timezone import is_dst
 
 # Create secure SSL context
