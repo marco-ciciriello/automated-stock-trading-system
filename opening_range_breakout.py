@@ -69,7 +69,7 @@ for symbol in symbols:
                     symbol=symbol,
                     side='buy',
                     type='limit',
-                    qty='100',
+                    qty=calculate_stock_quantity(limit_price),
                     time_in_force='day',
                     order_class='bracket',
                     limit_price=limit_price,
