@@ -1,4 +1,5 @@
 # Create a crontab event to run this file once per day, usually towards the end
+
 import alpaca_trade_api as tradeapi
 import config
 
