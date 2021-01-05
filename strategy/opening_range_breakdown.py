@@ -1,13 +1,14 @@
 # Accessing the polygon.io data will only work for those with an Alpaca live trading account
 
 import alpaca_trade_api as tradeapi
-import config
 import smtplib
 import sqlite3
 import ssl
 
+from . import config, helpers
 from datetime import date, datetime
 from helpers import is_dst
+
 
 # Create secure SSL context
 context = ssl.create_default_context()
